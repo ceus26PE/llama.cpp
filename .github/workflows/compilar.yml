@@ -1,17 +1,18 @@
 name: Compilar para Athlon II y T400
 
 on:
-  workflow_dispatch: # Te permite ejecutarlo con un solo clic
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-2022
 
     steps:
-      - name: Descargar el código
+      - name: Descargar el código desde MBZUAI
         uses: actions/checkout@v4
         with:
-          ref: model/K2Horizon
+          repository: 'MBZUAI-IFM/llama.cpp'
+          ref: 'model/K2Horizon'
 
       - name: Instalar CUDA 12.1 (idéntico a tus DLLs)
         uses: Jimver/cuda-toolkit@v0.2.19
