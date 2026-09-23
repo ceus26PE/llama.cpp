@@ -7,9 +7,6 @@ jobs:
   build:
     runs-on: windows-2022
 
-    env:
-      CL: "/D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH"
-
     steps:
       - name: Descargar el código desde MBZUAI
         uses: actions/checkout@v4
@@ -17,10 +14,10 @@ jobs:
           repository: 'MBZUAI-IFM/llama.cpp'
           ref: 'model/K2Horizon'
 
-      - name: Instalar CUDA 12.1 (idéntico a tus DLLs)
+      - name: Instalar CUDA 12.4 oficial
         uses: Jimver/cuda-toolkit@v0.2.19
         with:
-          cuda: '12.1.1'
+          cuda: '12.4.1'
           method: 'network'
 
       - name: Configurar CMake sin AVX y con Turing 75
@@ -38,10 +35,16 @@ jobs:
         run: |
           cmake --build build --config Release --target llama-server -j 4
 
-      - name: Empaquetar y subir el ejecutable
+      - name: Copiar DLLs de CUDA al paquete
+        run: |
+          copy "$env:CUDA_PATH\bin\cudart64_*.dll" build\bin\Release\
+          copy "$env:CUDA_PATH\bin\cublas64_*.dll" build\bin\Release\
+          copy "$env:CUDA_PATH\bin\cublasLt64_*.dll" build\bin\Release\
+
+      - name: Empaquetar y subir el ejecutable completo
         uses: actions/upload-artifact@v4
         with:
-          name: llama-server-Athlon-T400
+          name: llama-server-K2-Athlon-T400
           path: |
             build/bin/Release/llama-server.exe
             build/bin/Release/*.dll
