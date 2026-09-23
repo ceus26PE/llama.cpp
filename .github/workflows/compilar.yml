@@ -1,0 +1,40 @@
+name: Compilar para Athlon II y T400
+
+on:
+  workflow_dispatch: # Te permite ejecutarlo con un solo clic
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+        with:
+          ref: model/K2Horizon
+
+      - name: Instalar CUDA 12.1 (idéntico a tus DLLs)
+        uses: Jimver/cuda-toolkit@v0.2.19
+        with:
+          cuda: '12.1.1'
+          method: 'network'
+
+      - name: Configurar CMake sin AVX y con Turing 75
+        run: |
+          cmake -B build `
+            -DGGML_CUDA=ON `
+            -DCMAKE_CUDA_ARCHITECTURES="75" `
+            -DGGML_AVX=OFF `
+            -DGGML_AVX2=OFF `
+            -DGGML_AVX512=OFF `
+            -DGGML_FMA=OFF
+
+      - name: Compilar llama-server en Release
+        run: |
+          cmake --build build --config Release --target llama-server -j 4
+
+      - name: Empaquetar y subir el ejecutable
+        uses: actions/upload-artifact@v4
+        with:
+          name: llama-server-Athlon-T400
+          path: build/bin/Release/llama-server.exe
