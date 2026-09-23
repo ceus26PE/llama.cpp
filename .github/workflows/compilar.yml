@@ -7,6 +7,9 @@ jobs:
   build:
     runs-on: windows-2022
 
+    env:
+      CL: "/D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH"
+
     steps:
       - name: Descargar el código desde MBZUAI
         uses: actions/checkout@v4
@@ -28,7 +31,8 @@ jobs:
             -DGGML_AVX=OFF `
             -DGGML_AVX2=OFF `
             -DGGML_AVX512=OFF `
-            -DGGML_FMA=OFF
+            -DGGML_FMA=OFF `
+            -DGGML_CPU_ALL_VARIANTS=OFF
 
       - name: Compilar llama-server en Release
         run: |
@@ -38,4 +42,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: llama-server-Athlon-T400
-          path: build/bin/Release/llama-server.exe
+          path: |
+            build/bin/Release/llama-server.exe
+            build/bin/Release/*.dll
